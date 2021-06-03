@@ -1,0 +1,43 @@
+---
+- name: Install and configuration of http and firewalld
+  hosts: nodes
+  become: yes
+  tasks:
+    - name: Install http and firewalld
+      yum:
+        name:
+          - httpd
+          - firewalld
+        state: latest
+
+    - name: Configuration of http and firewalld
+      service:
+         name: httpd
+         enabled: yes
+         state: started
+    - name: Configuration of httpd and firewalld
+      service:
+         name: firewalld
+         enabled: yes
+         state: started
+
+    - name: Open the firewall ports
+      firewalld:
+         service: http
+         permanent: true
+         state: enabled
+         immediate: yes
+
+    - name: copy html content
+      copy:
+        content: "Welcome to Ansible"
+        dest: /var/www/html/index.html
+
+- name: Verification of webpage
+  hosts: localhost
+  become: no
+  tasks:
+    - name: web verification
+      uri:
+        url: http://node1
+        status_code: 200
